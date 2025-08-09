@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
+        model: "openai/gpt-oss-20b:free",
         messages: [{ role: "user", content: message }],
       }),
     });
