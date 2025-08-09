@@ -22,7 +22,9 @@ export default async function handler(req, res) {
 
     const messages = [];
     if (context) {
-      messages.push({ role: "system", content: `Context: ${JSON.stringify(context)}` });
+      // Format context as a compact, readable string
+      const ctxStr = `section=${context.currentSection || ''}, url=${context.url || ''}, scroll=${context.scrollPosition || ''}`;
+      messages.push({ role: "system", content: `Page context: ${ctxStr}` });
     }
     messages.push({ role: "user", content: message });
 
