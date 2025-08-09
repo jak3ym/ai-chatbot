@@ -15,9 +15,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    const { message, context } = req.body;
     console.log("Received message:", message);
+    console.log("Received context:", context);
     console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
+
+    const messages = [];
+    if (context) {
+      messages.push({ role: "system", content: `Context: ${JSON.stringify(context)}` });
+    }
+    messages.push({ role: "user", content: message });
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -27,7 +34,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-20b:free",
-        messages: [{ role: "user", content: message }],
+        messages,
       }),
     });
 
