@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openchat/openchat-7b",
+        model: "openai/gpt-oss-20b",
         messages: [{ role: "user", content: message }],
       }),
     });
