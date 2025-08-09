@@ -15,27 +15,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, context } = req.body;
-    console.log("Received message:", message);
-    console.log("Received context:", context);
-    console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
+  const { message } = req.body;
+  console.log("Received message:", message);
+  console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
 
-    const messages = [];
-    // Only include context if it's a simple, non-empty string
-    if (typeof context === 'string' && context.trim().length > 0) {
-      messages.push({ role: "system", content: `Page context: ${context}` });
-    } else if (context && typeof context === 'object' && !Array.isArray(context)) {
-      // Try to build a compact string from known fields if present
-      const { currentSection, url, scrollPosition } = context;
-      const ctxParts = [];
-      if (currentSection) ctxParts.push(`section=${currentSection}`);
-      if (url) ctxParts.push(`url=${url}`);
-      if (typeof scrollPosition === 'number') ctxParts.push(`scroll=${scrollPosition}`);
-      if (ctxParts.length > 0) {
-        messages.push({ role: "system", content: `Page context: ${ctxParts.join(', ')}` });
-      }
-    }
-    messages.push({ role: "user", content: message });
+    const messages = [
+      { role: "user", content: message }
+    ];
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
