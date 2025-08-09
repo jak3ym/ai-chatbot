@@ -21,10 +21,19 @@ export default async function handler(req, res) {
     console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
 
     const messages = [];
-    if (context) {
-      // Format context as a compact, readable string
-      const ctxStr = `section=${context.currentSection || ''}, url=${context.url || ''}, scroll=${context.scrollPosition || ''}`;
-      messages.push({ role: "system", content: `Page context: ${ctxStr}` });
+    // Only include context if it's a simple, non-empty string
+    if (typeof context === 'string' && context.trim().length > 0) {
+      messages.push({ role: "system", content: `Page context: ${context}` });
+    } else if (context && typeof context === 'object' && !Array.isArray(context)) {
+      // Try to build a compact string from known fields if present
+      const { currentSection, url, scrollPosition } = context;
+      const ctxParts = [];
+      if (currentSection) ctxParts.push(`section=${currentSection}`);
+      if (url) ctxParts.push(`url=${url}`);
+      if (typeof scrollPosition === 'number') ctxParts.push(`scroll=${scrollPosition}`);
+      if (ctxParts.length > 0) {
+        messages.push({ role: "system", content: `Page context: ${ctxParts.join(', ')}` });
+      }
     }
     messages.push({ role: "user", content: message });
 
