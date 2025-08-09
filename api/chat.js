@@ -5,6 +5,8 @@ export default async function handler(req, res) {
 
   try {
     const { message } = JSON.parse(req.body);
+    console.log("Received message:", message);
+    console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -18,14 +20,29 @@ export default async function handler(req, res) {
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return res.status(response.status).json({ error: errorData.message || "API Error" });
+    console.log("OpenRouter response status:", response.status);
+
+    let data;
+    try {
+      data = await response.json();
+      console.log("OpenRouter response data:", data);
+    } catch (jsonErr) {
+      console.error("Failed to parse OpenRouter response as JSON", jsonErr);
+      return res.status(500).json({ error: "Failed to parse OpenRouter response as JSON" });
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.message || "API Error" });
+    }
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      console.error("No valid reply in OpenRouter response", data);
+      return res.status(500).json({ error: "No valid reply from OpenRouter API" });
+    }
+
     return res.status(200).json({ reply: data.choices[0].message.content });
   } catch (error) {
+    console.error("Handler error:", error);
     return res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 }
