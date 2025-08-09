@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = JSON.parse(req.body);
+    const { message } = req.body;
     console.log("Received message:", message);
     console.log("Using API key:", process.env.OPENROUTER_API_KEY ? "[set]" : "[not set]");
 
